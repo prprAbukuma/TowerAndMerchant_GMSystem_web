@@ -21,7 +21,7 @@
         <div class="container">
             <h1>欢迎注册GM系统</h1>
 
-            <form action="" name="registerForm" class="Form">
+            <form action="ExecuteRegister.jsp" name="registerForm" class="Form">
                 <input id="emailInput" type="text" placeholder="邮箱">
                 <input id="passwordInput" type="password" placeholder="密码">
                 <input id="repeatPasswordInput" type="password" placeholder="重复密码">
@@ -62,7 +62,7 @@
     var email="<%=email%>";//获取jsp中的值
     var securityCode="<%=securityCode%>";//获取jsp中的值
     //  设置该节点的值
-    if(email!=null&&email!=""&&email!="null") {
+    if(email!=null&&email!==""&&email!=="null") {
         emailInput.value = email;
     }
     /**
@@ -74,7 +74,7 @@
         var emailRegex=/[a-zA-Z0-9]+@[a-zA-Z0-9]+.[a-zA-Z]+/;
         if(emailRegex.test(emailInput.value))
         {
-            // todo 发送邮箱到获得验证码界面.将这个过程写在另一个jsp中
+            //  发送邮箱到获得验证码界面.将这个过程写在另一个jsp中
             window.location.href="SpawnSecurityCode.jsp?email="+emailInput.value;
             window.close();//关闭掉注册页面
         }else{
@@ -91,7 +91,7 @@
         var passwordRegex=/[a-zA-Z0-9]{6,}/;//即密码必须大于6位，可以位任意的字母和数字
         if(passwordRegex.test(password))
         {
-            if(password==repeatPassword){
+            if(password===repeatPassword){
                 return true;
             }else {
                 window.alert("两次密码不同");
@@ -108,7 +108,7 @@
      */
     function submitRegister() {
         //判断邮箱验证码是否为空
-        if(securityCodeInput.value==null||securityCodeInput.value=="")
+        if(securityCodeInput.value==null||securityCodeInput.value==="")
         {
 
             window.alert("邮箱验证码不能为空");
@@ -118,8 +118,14 @@
             var isSame=verifyPassword(passwordInput.value,repeatPasswordInput.value);
             if(isSame)
             {
-                window.alert("请求已提交");
-                registerForm.submit();
+                //判断邮箱验证码是否正确
+                if(securityCodeInput.value==="<%=securityCode%>"){
+                    window.alert("请求已提交");
+                    registerForm.submit();
+                }else {
+                    window.alert("邮箱验证码不正确");
+                }
+
             }
 
         }
