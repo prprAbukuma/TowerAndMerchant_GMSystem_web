@@ -14,21 +14,35 @@
 <body>
 <%
   String email=request.getParameter("email");
-  String securityCode=request.getParameter("securityCode");
+  //String securityCode=request.getParameter("securityCode");
+    //从cookie中获得生成验证码
+    String securityCode="";
+  Cookie []cookies=request.getCookies();
+  for(Cookie temp:cookies)
+  {
+      if(temp.getName().equals("emailSecurityCode"))
+      {
+        securityCode=temp.getValue();
+      }
+  }
 %>
 <div class="htmleaf-container">
     <div class="wrapper">
         <div class="container">
             <h1>欢迎注册GM系统</h1>
 
-            <form action="" name="registerForm" class="Form">
-                <input id="emailInput" type="text" placeholder="邮箱">
-                <input id="passwordInput" type="password" placeholder="密码">
-                <input id="repeatPasswordInput" type="password" placeholder="重复密码">
+            <form action="ExecuteRegister.jsp" name="registerForm" class="Form" method="post">
+                <input name="email" id="emailInput" type="text" placeholder="邮箱">
                 <button type="button"  id="get-securityCode" >获取邮箱验证码</button>
                 <p>&nbsp;</p>
                 <input id="securityCodeInput" type="text" placeholder="邮箱验证码">
-                <input id="adminCodeInput" type="text" placeholder="管理员码(若有)">
+                <input name="password" id="passwordInput" type="password" placeholder="密码">
+                <input id="repeatPasswordInput" type="password" placeholder="重复密码">
+                <input name="idCard" id="idCardInput" type="text" placeholder="身份证号">
+
+
+
+                <input name="adminCode" id="adminCodeInput" type="text" placeholder="管理员码(若有)">
                 <button type="button" id="login-button" onclick="submitRegister()">注册</button>
 
             </form>
@@ -57,12 +71,13 @@
     var securityCodeInput=document.getElementById("securityCodeInput");
     var passwordInput=document.getElementById("passwordInput");
     var repeatPasswordInput=document.getElementById("repeatPasswordInput");
+    var idCardInput=document.getElementById("idCardInput");
     getSecurityCodeBtn.addEventListener("click",verifyEmail.bind(this,emailInput));
     //  再次载入该页面时回显数据【主要用于生成验证码后回来-不用再填邮箱，并且获得生成的验证码是啥】
     var email="<%=email%>";//获取jsp中的值
     var securityCode="<%=securityCode%>";//获取jsp中的值
     //  设置该节点的值
-    if(email!=null&&email!=""&&email!="null") {
+    if(email!=null&&email!==""&&email!=="null") {
         emailInput.value = email;
     }
     /**
@@ -74,7 +89,7 @@
         var emailRegex=/[a-zA-Z0-9]+@[a-zA-Z0-9]+.[a-zA-Z]+/;
         if(emailRegex.test(emailInput.value))
         {
-            // todo 发送邮箱到获得验证码界面.将这个过程写在另一个jsp中
+            //  发送邮箱到获得验证码界面.将这个过程写在另一个jsp中
             window.location.href="SpawnSecurityCode.jsp?email="+emailInput.value;
             window.close();//关闭掉注册页面
         }else{
@@ -91,7 +106,7 @@
         var passwordRegex=/[a-zA-Z0-9]{6,}/;//即密码必须大于6位，可以位任意的字母和数字
         if(passwordRegex.test(password))
         {
-            if(password==repeatPassword){
+            if(password===repeatPassword){
                 return true;
             }else {
                 window.alert("两次密码不同");
@@ -108,7 +123,7 @@
      */
     function submitRegister() {
         //判断邮箱验证码是否为空
-        if(securityCodeInput.value==null||securityCodeInput.value=="")
+        if(securityCodeInput.value==null||securityCodeInput.value==="")
         {
 
             window.alert("邮箱验证码不能为空");
@@ -118,8 +133,19 @@
             var isSame=verifyPassword(passwordInput.value,repeatPasswordInput.value);
             if(isSame)
             {
-                window.alert("请求已提交");
-                registerForm.submit();
+                //判断邮箱验证码是否正确
+                if(securityCodeInput.value===securityCode){
+                    var regex=/[0-9]{17}[0-9X]/;
+                    if(regex.test(idCardInput.value)) {
+                        window.alert("请求已提交");
+                        registerForm.submit();
+                    }else {
+                        window.alert("身份证格式不正确");
+                    }
+                }else {
+                    window.alert("邮箱验证码不正确");
+                }
+
             }
 
         }
